@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>RAKAN 2026</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>body { font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }</style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen pb-20 select-none">
+  <header class="max-w-md mx-auto pt-5 px-4 flex justify-between items-center">
+    <div class="flex items-center gap-2.5">
+      <div class="w-10 h-10 rounded-xl bg-slate-900 border border-emerald-500/40 flex items-center justify-center shadow-lg"><span class="text-xl">🔥</span></div>
+      <div><h1 class="text-2xl font-black tracking-wider text-emerald-400">RAKAN 2026</h1><p class="text-[11px] text-slate-400 font-medium" id="currentDate"></p></div>
+    </div>
+    <div class="flex items-center gap-1.5 bg-slate-900 border border-slate-800 px-3.5 py-1.5 rounded-full"><span class="text-lg">🔥</span><span id="streakCount" class="font-black text-amber-400 text-base">0</span><span class="text-xs text-slate-400">أيام</span></div>
+  </header>
+
+  <nav class="max-w-md mx-auto px-4 mt-4 flex gap-1.5 bg-slate-900/60 p-1 rounded-2xl border border-slate-800">
+    <button id="tabTodayBtn" onclick="switchTab('today')" class="flex-1 py-2 rounded-xl text-xs font-bold transition-all bg-emerald-500 text-slate-950">اليوم 🎯</button>
+    <button id="tabWeekBtn" onclick="switchTab('week')" class="flex-1 py-2 rounded-xl text-xs font-bold transition-all text-slate-400">الأسبوع 📅</button>
+    <button id="tabRemindBtn" onclick="switchTab('reminders')" class="flex-1 py-2 rounded-xl text-xs font-bold transition-all text-slate-400">التذكيرات 🔔</button>
+  </nav>
+
+  <main class="max-w-md mx-auto px-4 mt-4 space-y-4">
+    <div id="todayView" class="space-y-4">
+      <section class="bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 border border-slate-800 rounded-2xl p-4 shadow-md">
+        <div class="flex items-center justify-between mb-1.5">
+          <div class="flex items-center gap-1.5"><span>🧱</span><h2 class="text-[11px] font-bold tracking-widest text-slate-400">RAKAN WALL</h2></div>
+          <span class="text-[11px] font-black tracking-widest text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded bg-emerald-950/30">RAK</span>
+        </div>
+        <p class="text-lg font-black text-white mt-1">الدراسة هي الأساس 📚</p>
+        <div class="flex items-center gap-2 mt-2 pt-2 border-t border-slate-800/80 text-xs text-slate-300">
+          <span>🇩🇪</span><span>🎬</span><span>🌱</span><span>🔧</span><span class="text-slate-600">|</span><span class="text-emerald-400 font-bold">قاعدة السنة: لا أشتّت نفسي.</span>
+        </div>
+      </section>
+
+      <section class="bg-slate-900 border border-slate-800/80 rounded-2xl p-4">
+        <div class="flex justify-between items-center text-xs mb-2"><span class="text-slate-400 font-semibold">نسبة إنجاز اليوم</span><span id="progressText" class="font-black text-emerald-400">0%</span></div>
+        <div class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden"><div id="progressBar" class="h-full bg-emerald-500 rounded-full transition-all duration-300" style="width: 0%"></div></div>
+      </section>
+
+      <section class="space-y-2.5" id="taskList"></section>
+    </div>
+
+    <div id="weekView" class="space-y-4 hidden">
+      <section class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-3"><h2 class="text-sm font-bold text-white flex items-center gap-2"><span>📅</span> متابعة الأسبوع</h2><span id="weekAvgBadge" class="text-xs bg-emerald-950 text-emerald-400 border border-emerald-800/50 px-2 py-0.5 rounded-full font-bold">معدل: 0%</span></div>
+        <div class="grid grid-cols-7 gap-1.5 text-center mt-4" id="weekGrid"></div>
+      </section>
+      <section class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 text-center">
+        <div class="text-3xl mb-1">🔥</div>
+        <h3 class="text-sm font-bold text-slate-200">سلسلة الانضباط الحالية</h3>
+        <p class="text-2xl font-black text-amber-400 mt-1" id="streakDetailedText">0 أيام متتالية</p>
+      </section>
+    </div>
+
+    <div id="remindersView" class="space-y-4 hidden">
+      <section class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div><h2 class="text-sm font-bold text-white">إعدادات التذكيرات 🔔</h2><p class="text-[11px] text-slate-400">حدد وقت كل مهمة</p></div>
+          <button onclick="requestNotifPermission()" class="text-[11px] bg-emerald-500 text-slate-950 font-bold px-2.5 py-1 rounded-lg">إذن التنبيهات</button>
+        </div>
+        <div class="mt-3 divide-y divide-slate-800/60" id="remindersList"></div>
+      </section>
+    </div>
+
+    <div class="pt-2 text-center">
+      <button onclick="resetTasks()" class="text-xs text-slate-600 hover:text-slate-400 underline">تصفير مهام اليوم يدوياً</button>
+    </div>
+  </main>
+
+  <script>
+    const initialTasks = [
+      { id: "study", title: "الدراسة", detail: "واجبات ومراجعة أساسية", icon: "📚", duration: "الأساس", defaultTime: "17:00" },
+      { id: "german", title: "الألماني", detail: "تعلم وممارسة", icon: "🇩🇪", duration: "45 دقيقة", defaultTime: "18:00" },
+      { id: "montage", title: "المونتاج", detail: "تطبيق وتعديل مشاريع", icon: "🎬", duration: "30 دقيقة", defaultTime: "19:45" },
+      { id: "azolla", title: "الأزولا", detail: "متابعة وتفقد الحوض", icon: "🌱", duration: "5–10 دقائق", defaultTime: "20:15" },
+      { id: "mechatronics", title: "ميكاترونيك", detail: "Arduino وتجارب دارات", icon: "🔧", duration: "20 دقيقة", defaultTime: "20:25" },
+      { id: "prep", title: "تحضير الغد", detail: "ترتيب الأولويات والحقيبة", icon: "📝", duration: "10 دقائق", defaultTime: "21:30" },
+      { id: "sleep", title: "النوم في الوقت", detail: "استرجاع الطاقة لليوم القادم", icon: "😴", duration: "التزام", defaultTime: "22:00" }
+    ];
+
+    const todayObj = new Date();
+    const todayStr = todayObj.toISOString().split('T')[0];
+    let appData = {};
+    try { appData = JSON.parse(localStorage.getItem('rakan_2026_data')) || {}; } catch(e) { appData = {}; }
+
+    if (!appData.lastDay) appData.lastDay = todayStr;
+    if (!appData.completed) appData.completed = {};
+    if (typeof appData.streak !== 'number') appData.streak = 0;
+    if (!appData.lastStreakDay) appData.lastStreakDay = "";
+    if (!appData.history) appData.history = {};
+    if (!appData.reminders) appData.reminders = {};
+
+    initialTasks.forEach(t => {
+      if (!appData.reminders[t.id]) appData.reminders[t.id] = { time: t.defaultTime, enabled: true };
+    });
+
+    function renderDate() {
+      try {
+        const opts = { weekday: 'long', month: 'long', day: 'numeric' };
+        document.getElementById('currentDate').innerText = todayObj.toLocaleDateString('ar-TN', opts);
+      } catch(e) { document.getElementById('currentDate').innerText = todayStr; }
+    }
+
+    function switchTab(tab) {
+      ['today', 'week', 'reminders'].forEach(t => {
+        const view = document.getElementById(t + 'View');
+        const btn = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1) + 'Btn');
+        if (t === tab) {
+          view.classList.remove('hidden');
+          btn.className = "flex-1 py-2 rounded-xl text-xs font-bold bg-emerald-500 text-slate-950";
+        } else {
+          view.classList.add('hidden');
+          btn.className = "flex-1 py-2 rounded-xl text-xs font-bold text-slate-400";
+        }
+      });
+      if (tab === 'week') renderWeekGrid();
+      if (tab === 'reminders') renderRemindersList();
+    }
+
+    function renderTasks() {
+      const container = document.getElementById('taskList');
+      container.innerHTML = '';
+      initialTasks.forEach(task => {
+        const isDone = !!appData.completed[task.id];
+        const rem = appData.reminders[task.id] || { time: task.defaultTime };
+        const card = document.createElement('div');
+        card.className = `flex items-center justify-between p-3.5 rounded-xl border transition-all cursor-pointer ${isDone ? 'bg-emerald-950/20 border-emerald-800/40' : 'bg-slate-900 border-slate-800'}`;
+        card.onclick = () => toggleTask(task.id);
+        card.innerHTML = `
+          <div class="flex items-center gap-3">
+            <span class="text-xl">${task.icon}</span>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-sm ${isDone ? 'line-through text-slate-500' : 'text-slate-100'}">${task.title}</span>
+                <span class="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded font-mono">${rem.time}</span>
+              </div>
+              <p class="text-xs text-slate-400 mt-0.5">${task.detail} (${task.duration})</p>
+            </div>
+          </div>
+          <div class="w-6 h-6 rounded-md flex items-center justify-center border text-xs font-bold ${isDone ? 'bg-emerald-500 border-emerald-400 text-slate-950' : 'border-slate-700 text-transparent'}">✓</div>
+        `;
+        container.appendChild(card);
+      });
+      updateProgress();
+    }
+
+    function toggleTask(id) {
+      appData.completed[id] = !appData.completed[id];
+      if (!appData.completed[id]) delete appData.completed[id];
+      const count = Object.keys(appData.completed).length;
+      if (count === initialTasks.length && appData.lastStreakDay !== todayStr) {
+        appData.streak += 1;
+        appData.lastStreakDay = todayStr;
+      }
+      appData.history[todayStr] = Math.round((count / initialTasks.length) * 100);
+      saveData();
+      renderTasks();
+    }
+
+    function updateProgress() {
+      const count = Object.keys(appData.completed).length;
+      const pct = Math.round((count / initialTasks.length) * 100);
+      document.getElementById('progressBar').style.width = `${pct}%`;
+      document.getElementById('progressText').innerText = `${pct}%`;
+      document.getElementById('streakCount').innerText = appData.streak;
+      document.getElementById('streakDetailedText').innerText = `${appData.streak} أيام متتالية 🔥`;
+    }
+
+    function renderWeekGrid() {
+      const grid = document.getElementById('weekGrid');
+      grid.innerHTML = '';
+      const dayOfWeek = (todayObj.getDay() + 6) % 7;
+      const monday = new Date(todayObj);
+      monday.setDate(todayObj.getDate() - dayOfWeek);
+      const daysName = ['إثن', 'ثلا', 'أرب', 'خمي', 'جمع', 'سبت', 'أحد'];
+      let totalPct = 0;
+
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        const dStr = d.toISOString().split('T')[0];
+        let pct = appData.history[dStr] || 0;
+        if (dStr === todayStr) pct = Math.round((Object.keys(appData.completed).length / initialTasks.length) * 100);
+        totalPct += pct;
+
+        const col = document.createElement('div');
+        col.className = `flex flex-col items-center p-2 rounded-xl border ${dStr === todayStr ? 'border-emerald-500 bg-emerald-950/20' : 'border-slate-800 bg-slate-900/60'}`;
+        col.innerHTML = `
+          <span class="text-[10px] text-slate-400 mb-1">${daysName[i]}</span>
+          <span class="text-xs font-bold ${dStr === todayStr ? 'text-emerald-400' : 'text-slate-200'}">${d.getDate()}</span>
+          <div class="w-full bg-slate-800 rounded-full h-1.5 mt-2 overflow-hidden"><div class="bg-emerald-400 h-full rounded-full" style="width: ${pct}%"></div></div>
+          <span class="text-[9px] text-slate-400 mt-1 font-mono">${pct}%</span>
+        `;
+        grid.appendChild(col);
+      }
+      document.getElementById('weekAvgBadge').innerText = `معدل: ${Math.round(totalPct / 7)}%`;
+    }
+
+    function renderRemindersList() {
+      const container = document.getElementById('remindersList');
+      container.innerHTML = '';
+      initialTasks.forEach(task => {
+        const rem = appData.reminders[task.id] || { time: task.defaultTime, enabled: true };
+        const row = document.createElement('div');
+        row.className = 'py-2.5 flex items-center justify-between text-xs';
+        row.innerHTML = `
+          <div class="flex items-center gap-2"><span class="text-base">${task.icon}</span><span class="font-bold text-slate-200">${task.title}</span></div>
+          <div class="flex items-center gap-2">
+            <input type="time" value="${rem.time}" onchange="updateTime('${task.id}', this.value)" class="bg-slate-800 text-emerald-400 px-2 py-1 rounded font-mono text-xs border border-slate-700 outline-none">
+            <button onclick="toggleReminder('${task.id}')" class="px-2.5 py-1 rounded font-bold ${rem.enabled ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/50' : 'bg-slate-800 text-slate-500'}">${rem.enabled ? '🔔 ON' : '🔕 OFF'}</button>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function updateTime(id, val) { if (!appData.reminders[id]) appData.reminders[id] = {}; appData.reminders[id].time = val; saveData(); renderTasks(); }
+    function toggleReminder(id) { if (!appData.reminders[id]) appData.reminders[id] = {}; appData.reminders[id].enabled = !appData.reminders[id].enabled; saveData(); renderRemindersList(); }
+    function resetTasks() { if (confirm('تصفير مهام اليوم؟')) { appData.completed = {}; saveData(); renderTasks(); } }
+    function saveData() { localStorage.setItem('rakan_2026_data', JSON.stringify(appData)); }
+    function requestNotifPermission() { if ('Notification' in window) Notification.requestPermission(); }
+
+    renderDate();
+    renderTasks();
+  </script>
+</body>
+</html>
+
